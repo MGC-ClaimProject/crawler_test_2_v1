@@ -1,51 +1,10 @@
 #crawler.py
 
-import os
 import time
-import json
-from selenium import webdriver  # 🔄 순수 selenium 사용
 from selenium.common import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.service import Service  # 🔄 추가
-
-#
-# SELENIUM_REMOTE_URL = os.getenv("SELENIUM_REMOTE_URL", "http://selenium:4444/wd/hub")
-# CHROME_BINARY_PATH = "/usr/bin/chromium"
-# CHROMEDRIVER_PATH = "/usr/bin/chromedriver"
-#
-#
-# def setup_driver():
-#     # 📌 chromedriver 자동 설치 및 경로 반환
-#     driver_path = chromedriver_autoinstaller.install()  # 🔄 설치 후 경로 반환
-#
-#     options = webdriver.ChromeOptions()
-#     options.headless = True  # 🔄 도커에서는 반드시 headless 모드로!
-#     options.add_argument("--no-sandbox")
-#     options.add_argument("--disable-gpu")
-#     options.add_argument("--disable-dev-shm-usage")
-#     options.add_argument("--disable-blink-features=AutomationControlled")
-#     options.add_argument("--window-size=1920,1080")
-#     options.add_argument("--no-proxy-server")
-#     options.add_argument("--ignore-certificate-errors")
-#     options.add_argument("--disable-software-rasterizer")
-#     options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3")
-#
-#     # 🔄 Service 객체로 드라이버 경로 지정 (자동 설치된 경로 사용)
-#     service = Service(executable_path=driver_path)  # 🔄 변경된 부분
-#
-#     # 🔄 순수 Selenium으로 Chrome 드라이버 실행
-#     driver = webdriver.Chrome(
-#         service=service,  # 🔄 변경된 부분
-#         options=options
-#     )
-#
-#     # 🔄 DNS 캐시 초기화
-#     driver.get("chrome://net-internals/#dns")
-#     driver.execute_script("chrome.send('clearHostResolverCache');")
-#
-#     return driver
 
 
 # ✅ 버튼 클릭 유틸

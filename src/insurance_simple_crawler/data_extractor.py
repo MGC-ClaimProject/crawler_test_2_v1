@@ -22,7 +22,6 @@ STATUS_MAPPING = {
 }
 
 def save_crawler_data(driver, name, birth):
-    # 페이지 소스 읽어오기(html)
     try:
         current_url = driver.current_url
         print(f"🔄 현재 페이지 URL: {current_url}")
@@ -30,27 +29,22 @@ def save_crawler_data(driver, name, birth):
 
         soup = BeautifulSoup(page_source, "html.parser")
         insurance_data = []
+
         filename = f"{birth}_{name}"
 
-        # ✅ 모든 `tList pc_view` 테이블 찾기
+        # ✅ 보험 정보 추출
         tlist_tables = soup.find_all("table", {"class": "tList pc_view"})
-
-        # ✅ 보험 정보가 있는 두 번째 `tList pc_view` 테이블 선택
         if len(tlist_tables) < 2:
             print("⚠️ 보험 정보 테이블을 찾을 수 없습니다.")
             return None
 
-        main_table = tlist_tables[1]  # ✅ 두 번째 테이블이 보험 내역
+        main_table = tlist_tables[1]
+        rows = main_table.find_all("tr")[2:]
 
-        rows = main_table.find_all("tr")[2:]  # ✅ 헤더 제외하고 데이터 행만 추출
         for row in rows:
             columns = row.find_all("td")
-
             if len(columns) >= 10:
-                # ✅ 보험사 정보 title 속성이 아닌 텍스트 내용 가져오기
                 insurance_company = columns[0].get_text(strip=True)
-
-                # ✅ 상태 매핑 적용
                 contract_status = columns[4].get_text(strip=True)
                 mapped_status = STATUS_MAPPING.get(contract_status, "pending")
 
@@ -68,32 +62,31 @@ def save_crawler_data(driver, name, birth):
                 }
                 insurance_data.append(data)
 
-        json_filename = f"extracted_{filename}.json"
-        json_filepath = os.path.join(save_directory, json_filename)
+        # # ✅ 미회신 생명보험사 정보 수집
+        # unresponded_life = [
+        #     a.get_text(strip=True)
+        #     for a in soup.select("#unLList a")
+        # ]
+        #
+        # # ✅ 미회신 손해보험사 정보 수집
+        # unresponded_nonlife = [
+        #     a.get_text(strip=True)
+        #     for a in soup.select("#unNList a")
+        # ]
 
-        with open(json_filepath, "w", encoding="utf-8") as json_file:
-            json.dump(insurance_data, json_file, ensure_ascii=False, indent=4)
 
-        print(f"✅ 보험 데이터가 {json_filepath} 파일에 저장되었습니다.")
-
-        result_data = {
+        return {
             "status": "success",
-            "message": "보험 데이터가 파일로 저장되었습니다.",
+            "message": "보험 추출 완료!",
             "insurance_data": insurance_data
-        }
-
-        return jsonify(result_data),200
-
-
-
+        }, 200
 
     except Exception as e:
-        print(f"⚠️ 웹 데이터 읽어 오는 중 오류 발생: {str(e)}")
-        result_data = {
-            "status": "error",
-            "message": "웹 데이터 읽어 오는 중 오류 발생.",
-        }
-        return jsonify(result_data),400
+        print(f"❌ 보험 데이터 저장 중 오류 발생: {e}")
+        return {
+            "status": "fail",
+            "message": str(e)
+        }, 500
 
 # 🔄 페이지 소스 저장 함수
 def save_page_source(driver, name, birth):

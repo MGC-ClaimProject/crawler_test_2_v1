@@ -1,28 +1,5 @@
-
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import NoAlertPresentException
-from selenium.common import TimeoutException
 import requests
 from config.base import Config
-
-# 🔄 알럿 확인 및 닫기 함수
-# def handle_alert(driver):
-#     try:
-#         WebDriverWait(driver, 1).until(EC.alert_is_present())  # 🔄 알럿이 뜰 때까지 대기 (최대 1초)
-#         alert = driver.switch_to.alert
-#         print(f"⚠️ 알럿 감지: {alert.text}")
-#         alert.accept()  # 🔄 확인 버튼 클릭
-#         print("✅ 알럿이 닫혔습니다.")
-#     except NoAlertPresentException:
-#         print("⚠️ 알럿이 존재하지 않습니다.")
-#     except TimeoutException:
-#         print("⚠️ 알럿 대기 시간 초과.")
-#     except Exception as e:
-#         print(f"⚠️ 알럿 처리 중 예외 발생: {str(e)}")
-#
-
 
 def update_task_status(task_id, status, result_data):
     """

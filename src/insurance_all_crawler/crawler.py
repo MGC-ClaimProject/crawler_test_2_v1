@@ -1,16 +1,13 @@
 import time
-import requests
 from common.phone_pass import fill_and_submit_auth_form, validate_user_id, enter_password, enter_email_and_send_auth, \
     replace_password_fields, get_email_from_auth, enter_email_code, check_user_duplicate
-from common.virtual_keyboard import enter_password_via_virtual_keyboard, extract_lower_layout_map, \
-    extract_combined_key_mapping
-from insurance_all_crawler.utils import click_checkbox, click_text_button, \
-    fill_input_field, select_gender, select_hp_certification, click_a_tag_inside_li, \
+from common.virtual_keyboard import enter_password_via_virtual_keyboard, extract_combined_key_mapping
+from src.insurance_all_crawler import click_checkbox, fill_input_field, select_gender, select_hp_certification, click_a_tag_inside_li, \
     focus_check_and_close_modal, click_link_a_id
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, StaleElementReferenceException, NoSuchElementException
+from selenium.common.exceptions import TimeoutException
 
 
 # 🔄 간편 인증 절차 수행

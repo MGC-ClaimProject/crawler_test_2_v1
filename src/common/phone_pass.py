@@ -1,12 +1,9 @@
-from http.client import responses
-
-from flask import current_app
 from selenium.webdriver.common.alert import Alert
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, StaleElementReferenceException, NoSuchElementException
-import time, requests, os, json
+import time, os, json
 from PIL import Image
 from io import BytesIO
 

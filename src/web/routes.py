@@ -43,7 +43,7 @@ def insurance_simple_crawler():
             "message": "크롤러가 실행되었습니다!",
             "task_id": task_id,  # ✅ task_id 반환
             "status": "in_progress"
-        }), 200
+        }), 202
 
     except Exception as e:
         print(f"⚠️ 에러 발생: {str(e)}")

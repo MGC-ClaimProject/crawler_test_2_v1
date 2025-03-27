@@ -1,14 +1,6 @@
-import shutil
-from pyexpat.errors import messages
-
-from OpenSSL.rand import status
-from flask import Flask, request, jsonify  # 🔄 Flask 추가
-import os
+from flask import jsonify  # 🔄 Flask 추가
 import time
 # import requests
-import urllib
-import base64
-from Crypto.Cipher import AES
 from selenium.common import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -17,7 +9,7 @@ from selenium.common.exceptions import NoAlertPresentException, UnexpectedAlertP
 
 from common.utils import update_task_status
 from config.base import Config
-from insurance_simple_crawler.data_extractor import extract_and_log_data, save_crawler_data  # 🔄 추가된 부분
+from insurance_simple_crawler.data_extractor import save_crawler_data  # 🔄 추가된 부분
 from insurance_simple_crawler.crawler import (
     click_button,
     select_kakao_auth,
@@ -71,6 +63,25 @@ def handle_alert(driver):
         driver.switch_to.alert.accept()  # 강제 확인 클릭
     except Exception as e:
         print(f"⚠️ 알럿 처리 중 예외 발생: {str(e)}")
+
+# 🔄 미회신 보험사 팝업 확인 및 닫기 함수
+def close_active_popup(driver):
+    try:
+        # display: none; 이 아닌 팝업 찾기
+        popup = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((
+                By.XPATH,
+                '//div[contains(@class, "popup_layer") and contains(@class, "rply_popup") and not(contains(@style, "display: none"))]'
+            ))
+        )
+
+        # 해당 팝업 안에 있는 닫기 버튼 클릭
+        close_button = popup.find_element(By.CSS_SELECTOR, 'button.btn_close_popup.btn_close_rply')
+        close_button.click()
+        print("✅ 팝업 닫기 버튼 클릭 완료")
+
+    except Exception as e:
+        print(f"❌ 팝업 닫기 실패: {e}")
 
 
 # 🔄 간편 인증 절차 수행
@@ -148,7 +159,11 @@ def perform_auth(driver, task_id, name, phone1, phone2, phone3, birth, id_back):
                 driver.switch_to.window(main_window)
                 time.sleep(1)
                 update_task_status(task_id, "auth_pass", None)
+                # 재신청 알렛 확인
                 handle_alert(driver)
+                # 미회신 보험사 팝업 확인
+                close_active_popup(driver)
+
                 break  # 🔄 반복 중단
 
             # 🔄 '확인' 버튼 찾기 및 클릭 (팝업이 안 닫혔다면)
@@ -190,6 +205,7 @@ def run_crawler(task_id, member_id, name, phone1, phone2, phone3, birth, id_back
     from common.crawler_base import setup_driver
     from app_factory import create_app  # Flask 앱 인스턴스 생성 함수
     app = create_app()  # 앱 인스턴스를 가져옴
+    # driver, user_data_dir = setup_driver(task_id)
     driver, user_data_dir = setup_driver(task_id)
 
     try:
@@ -204,8 +220,6 @@ def run_crawler(task_id, member_id, name, phone1, phone2, phone3, birth, id_back
                 driver.quit()
                 return jsonify(auth_result_json), auth_status_code
 
-            # update_task_status(task_id, "auth_pass", None)
-            # handle_alert(driver)
             time.sleep(2)
 
             update_task_status(task_id, "saving_data", None)
@@ -213,10 +227,6 @@ def run_crawler(task_id, member_id, name, phone1, phone2, phone3, birth, id_back
 
             # 2. 데이터 추출
             result_data, status_code = save_crawler_data(driver, name, birth)
-
-            # result_data가 Flask Response 객체라면 dict로 변환
-            if hasattr(result_data, "get_json"):
-                result_data = result_data.get_json()
 
             if status_code != 200:
                 driver.quit()
@@ -228,19 +238,13 @@ def run_crawler(task_id, member_id, name, phone1, phone2, phone3, birth, id_back
 
     except Exception as e:
         print(f"⚠️ 크롤러 실행 중 예외 발생: {str(e)}")
-        driver.quit()
         with app.app_context():
-            result_data = {
-                "status": "error",
-                "message": str(e)
-            }
-            return jsonify(result_data), 500
+            return jsonify({"status": "error", "message": str(e)}), 500
 
     finally:
-        # 🔥 명확한 종료 및 프로필 삭제
         if driver:
             try:
                 driver.quit()
             except Exception as e:
                 print(f"⚠️ 드라이버 종료 중 예외: {str(e)}")
-        shutil.rmtree(user_data_dir, ignore_errors=True)
+        # shutil.rmtree(user_data_dir, ignore_errors=True)

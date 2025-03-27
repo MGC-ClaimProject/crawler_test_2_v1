@@ -3,10 +3,9 @@
 
 import time
 
-from flask import jsonify
 
-from common.utils import update_task_status
 from crawler.utils import run_in_background
+from common.utils import update_task_status
 from insurance_simple_crawler.insurance_crawler import run_crawler as simple_run_crawler
 
 def run_insurance_simple_crawler(task_id, member_id, name, phone1, phone2, phone3, birth, id_back, carrier):
@@ -32,6 +31,7 @@ def run_insurance_simple_crawler(task_id, member_id, name, phone1, phone2, phone
         print("🔄 백엔드 상태 변경 : completed  - 데이터 DB 저장 완료!!")
         print(f"insurance_data : {insurance_data}")
         update_task_status(task_id, "completed", insurance_data)
+
 
 
     print(f"[SIMPLE] 크롤러 실행 완료 ->  result_status:{result_status}, message:{result_message}, status:{status_code}")
